@@ -11,7 +11,7 @@ const patient = mongoose.model("patient", new mongoose.Schema({
     password: {
       type: String, require: true, minlength: 12, maxlength: 100
     },
-    phone: {
+    mob_number: {
       type: String, required: true, minlength: 11, maxlength: 11, unique: true
     },
     age: {
@@ -32,7 +32,7 @@ function validatePatient(patient) {
         name: Joi.string().required(),
         email: Joi.string().required().email(),
         password: Joi.string().required().min(12).max(30),
-        phone: Joi.string().required().min(11).max(11),
+        mob_number: Joi.string().required().min(11).max(11),
         age: Joi.number().min(0).max(200),
         picture: Joi.string()
     }

@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
-        phone: req.body.phone,
+        mob_number: req.body.mob_number,
         age: req.body.age,
         picture: req.body.picture
     });
@@ -36,10 +36,12 @@ router.post('/', async (req, res) => {
     catch(error) {
         // Handling unique contraints error messages;
         if (error.name === 'MongoError' && error.code === 11000) {
+            console.log('Error -> ', error)
             const field = error.errmsg.split("index:")[1].split("dup key")[0].split("_")[0];
             return res.status(400).send(`${field} already exists`);
         }
 
+        console.log('Error ->', error);
         res.status(400).send(error.message);
     }
          

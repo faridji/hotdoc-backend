@@ -1,6 +1,7 @@
 const patients = require('./routes/patient');
 
 const morgan = require('morgan');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
@@ -11,6 +12,7 @@ mongoose.connect('mongodb://localhost/hotdoc', {useNewUrlParser: true})
     .then( () => console.log('Successfully connected to mongodb...'))
     .catch( (error) => console.log('Opps:', error.message));
 
+app.use(cors());
 app.use(express.json());
 
 if (app.get('env') === 'development') {
