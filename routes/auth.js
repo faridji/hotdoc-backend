@@ -21,6 +21,17 @@ router.post('/patient', async (req, res) => {
     res.status(200).send({ "token": token });
 });
 
+router.post('/admin', async (req, res) => {
+    const { error } = validate(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    if (req.body.email !== 'admin@hotdoc.com') return res.status(400).send('Invalid email or password.');
+    if (req.body.password !== 'hotdoc123456') return res.status(400).send('Invalid email or password.');
+
+    const token = jwt.sign({ name: 'admin', isAdmin: true }, config.get('jwtPrivateKey'));
+    res.status(200).send({ "token": token });
+});
+
 function validate(req) {
     const schema = {
         email: Joi.string().required().email(),
