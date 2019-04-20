@@ -1,5 +1,9 @@
 const { Patient, validate } = require('../models/patient');
+
+const config = require('config');
+const jwt = require('jsonwebtoken');
 const express = require('express');
+const _ = require('lodash');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -8,6 +12,7 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/:id', async (req, res) => {
+
     const patient = await Patient.findById(req.params.id);
 
     if (!patient) return res.status(404).send('Patient with the given ID was not found.');
@@ -19,32 +24,22 @@ router.post('/', async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
-    const patient = new Patient({
-        name: req.body.name,
-        email: req.body.email,
-        password: req.body.password,
-        mob_number: req.body.mob_number,
-        age: req.body.age,
-        picture: req.body.picture
-    });
+    let patient = await Patient.findOne({ email: req.body.email });
+    if (patient) return res.status(400).send('Email already exists.');
 
-    // saving data is put into try and catch, to catch the possible errors.
-    try {
-        const result = await patient.save();
-        res.status(200).send(result);
-    }
-    catch(error) {
-        // Handling unique contraints error messages;
-        if (error.name === 'MongoError' && error.code === 11000) {
-            console.log('Error -> ', error)
-            const field = error.errmsg.split("index:")[1].split("dup key")[0].split("_")[0];
-            return res.status(400).send(`${field} already exists`);
-        }
+    patient = await Patient.findOne({ mob_number: req.body.mob_number });
+    if (patient) return res.status(400).send('Mob Number already exists.');
 
-        console.log('Error ->', error);
-        res.status(400).send(error.message);
-    }
-         
+    patient = new Patient(_.pick(req.body, 
+                ['name', 'email', 'password','mob_number','age','picture']));
+   
+    const result = await patient.save();
+
+    const token = jwt.sign({ _id: patient._id, name: req.body.name }, config.get('jwtPrivateKey'));
+
+    
+    res.setHeader('Access-Control-Expose-Headers','x-auth-token');
+    res.header('x-auth-token',token).status(200).send(_.pick(result, ['_id','name', 'email','mob_number','age','picture']));         
 });
 
 router.put('/:id', async (req, res) => {

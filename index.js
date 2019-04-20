@@ -1,5 +1,7 @@
 const patients = require('./routes/patient');
+const auth = require('./routes/auth');
 
+const config = require('config');
 const morgan = require('morgan');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -15,6 +17,12 @@ mongoose.connect('mongodb://localhost/hotdoc', {useNewUrlParser: true})
 app.use(cors());
 app.use(express.json());
 
+if (!config.get('jwtPrivateKey'))
+{
+    console.log('FATAL ERROR: jwtPrivateKey was not defined.');
+    process.exit(1);
+}
+
 if (app.get('env') === 'development') {
     app.use(morgan('tiny'));
     console.log('morgan enabled ...');
@@ -25,6 +33,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/patients', patients);
+app.use('/api/auth', auth);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
