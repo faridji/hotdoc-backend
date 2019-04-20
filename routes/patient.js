@@ -37,8 +37,9 @@ router.post('/', async (req, res) => {
 
     const token = jwt.sign({ _id: patient._id, name: req.body.name }, config.get('jwtPrivateKey'));
 
-    
-    res.setHeader('x-auth-token', token);
+    res.set("x-auth-token", token);
+    res.set('Access-Control-Expose-Headers', 'x-auth-token');
+
     res.status(200).send(_.pick(result, ['_id','name', 'email','mob_number','age','picture']));         
 });
 
