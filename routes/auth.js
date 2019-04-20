@@ -8,7 +8,7 @@ const _ = require('lodash');
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/patient', async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -17,8 +17,8 @@ router.post('/', async (req, res) => {
 
     if (patient.password != req.body.password) return res.status(400).send('Invalid email or password.');
 
-    const token = jwt.sign({ _id: patient._id }, config.get('jwtPrivateKey'));
-    res.status(200).send(token);
+    const token = jwt.sign({ _id: patient._id, name: patient.name }, config.get('jwtPrivateKey'));
+    res.status(200).send({ "token": token });
 });
 
 function validate(req) {
