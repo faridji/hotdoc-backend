@@ -1,4 +1,5 @@
 const patients = require('./routes/patient');
+const doctors = require('./routes/doctors');
 const auth = require('./routes/auth');
 
 const config = require('config');
@@ -34,6 +35,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/patients', patients);
 app.use('/api/auth', auth);
+app.use('/api/doctors', doctors)
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
