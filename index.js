@@ -1,30 +1,11 @@
-const patients = require('./routes/patient');
-const doctors = require('./routes/doctors');
-const depts = require('./routes/departments');
-const auth = require('./routes/auth');
-const dashboard = require('./routes/dashboard');
-
-const config = require('config');
 const morgan = require('morgan');
-const cors = require('cors');
-const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 
-// Connection to mongodb
-mongoose.set('useCreateIndex', true);
-mongoose.connect('mongodb://localhost/hotdoc', {useNewUrlParser: true})
-    .then( () => console.log('Successfully connected to mongodb...'))
-    .catch( (error) => console.log('Opps:', error.message));
-
-app.use(cors());
-app.use(express.json());
-
-if (!config.get('jwtPrivateKey'))
-{
-    console.log('FATAL ERROR: jwtPrivateKey was not defined.');
-    process.exit(1);
-}
+require('./startup/routes')(app);
+require('./startup/db')();
+require('./startup/config')();
+require('./startup/prod')(app);
 
 if (app.get('env') === 'development') {
     app.use(morgan('tiny'));
@@ -34,12 +15,6 @@ if (app.get('env') === 'development') {
 app.get('/', (req, res) => {
     res.send('Welcome to HotDoc, an online doctors appointment system');
 });
-
-app.use('/api/patients', patients);
-app.use('/api/auth', auth);
-app.use('/api/doctors', doctors);
-app.use('/api/departments', depts);
-app.use('/api/dashboard', dashboard);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
